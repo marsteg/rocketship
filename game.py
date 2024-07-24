@@ -1,6 +1,8 @@
 # Import the pygame module
 import pygame
 import random
+import sys
+import os
 
 # Import pygame.locals for easier access to key coordinates
 # Updated to conform to flake8 and black standards
@@ -85,19 +87,20 @@ class Cloud(pygame.sprite.Sprite):
                 random.randint(0, SCREEN_HEIGHT),
             )
         )
-
-    # Move the cloud based on a constant speed
-    # Remove the cloud when it passes the left edge of the screen
+    # Update the clouds
     def update(self):
         self.rect.move_ip(-5, 0)
         if self.rect.right < 0:
             self.kill()
-
+    
 # Setup for sounds. Defaults are good.
 pygame.mixer.init()
 
 # Initialize pygame
 pygame.init()
+
+# initialize fonts
+pygame.font.init()
 
 # Setup the clock for a decent framerate
 clock = pygame.time.Clock()
@@ -124,6 +127,9 @@ pygame.time.set_timer(ADDENEMY, 250)
 # Create a custom event for adding clouds
 ADDCLOUD = pygame.USEREVENT + 2
 pygame.time.set_timer(ADDCLOUD, 1000)
+# Add score for every 10 seconds of survival
+ADDSCORE = pygame.USEREVENT + 3
+pygame.time.set_timer(ADDSCORE, 10000)
 
 # Instantiate player. Right now, this is just a rectangle.
 player = Player()
@@ -135,13 +141,14 @@ enemies = pygame.sprite.Group()
 clouds = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
-
 # Variable to keep the main loop running
 running = True
+score = 0
 
 # Main loop
 while running:
     # Look at every event in the queue
+    myfont = pygame.font.SysFont("monospace", 16)
     for event in pygame.event.get():
         # Did the user hit a key?
         if event.type == KEYDOWN:
@@ -167,6 +174,13 @@ while running:
             clouds.add(new_cloud)
             all_sprites.add(new_cloud)
 
+        # Add Score?
+        elif event.type == ADDSCORE:
+            score += 10
+            
+        score_text = myfont.render(f'Score: {score}', True, (0, 0, 0))
+        
+
         # Update enemy position
         enemies.update()
 
@@ -187,6 +201,8 @@ while running:
         for entity in all_sprites:
             screen.blit(entity.surf, entity.rect)
 
+        screen.blit(score_text, (10, 10))
+
         # Check if any enemies have collided with the player
         if pygame.sprite.spritecollideany(player, enemies):
             # If so, then remove the player and stop the loop
@@ -201,7 +217,7 @@ while running:
             pygame.mixer.quit()
 
         pygame.display.flip()
-        # Ensure program maintains a rate of 30 frames per second
+        # Ensure program maintains a rate of 42 frames per second
         clock.tick(42)
 
         
