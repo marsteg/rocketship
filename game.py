@@ -27,7 +27,12 @@ class Player(pygame.sprite.Sprite):
         super(Player, self).__init__()
         self.surf = pygame.image.load("jet.png").convert()
         self.surf.set_colorkey((255, 255, 255), RLEACCEL)
-        self.rect = self.surf.get_rect()
+        self.rect = self.surf.get_rect(
+            center=(
+                10,
+                300,
+            )
+        )
 
     # Move the sprite based on user keypresses
     def update(self, pressed_keys):
@@ -178,7 +183,7 @@ while running:
         elif event.type == ADDSCORE:
             score += 10
             
-        score_text = myfont.render(f'Score: {score}', True, (0, 0, 0))
+        score_text = myfont.render(f'Score: {score}', True, (255, 255, 255))
         
 
         # Update enemy position
